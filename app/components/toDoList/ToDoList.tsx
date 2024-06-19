@@ -6,7 +6,11 @@ import Input from "../ui/Input";
 
 const STORAGE_KEY = "@todos";
 
-export type ToDo = { key: string; text: string };
+export type ToDo = {
+  key: string;
+  text: string;
+  isCompleted: boolean;
+};
 
 const TodoList = () => {
   const [todos, setTodos] = useState<ToDo[]>([]);
@@ -44,7 +48,10 @@ const TodoList = () => {
 
   const handleAddTodo = () => {
     if (currentValue.trim() !== "") {
-      setTodos([...todos, { key: Date.now().toString(), text: currentValue }]);
+      setTodos([
+        ...todos,
+        { key: Date.now().toString(), text: currentValue, isCompleted: false },
+      ]);
 
       setCurrentValue("");
     }
@@ -60,6 +67,12 @@ const TodoList = () => {
     setTodos((todos) => todos.filter((todo) => todo.key !== key));
   };
 
+  const handleCompleteToDo = (key: string, isCompleted: boolean) => {
+    setTodos((todos) =>
+      todos.map((todo) => (todo.key !== key ? todo : { ...todo, isCompleted }))
+    );
+  };
+
   const renderTodo = (item: ToDo) => (
     <Entry
       key={item.key}
@@ -67,6 +80,7 @@ const TodoList = () => {
       onEdit={(text) => handleTextChange(text, item.key)}
       onAdd={handleAddTodo}
       onRemove={handleRemoveToDo}
+      onComplete={handleCompleteToDo}
     />
   );
 

@@ -1,3 +1,4 @@
+import Checkbox from "expo-checkbox";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { ToDo } from "../toDoList/ToDoList";
 
@@ -6,15 +7,23 @@ type EntryProps = {
   onAdd: () => void;
   onEdit: (value: string) => void;
   onRemove: (key: string) => void;
+  onComplete: (key: string, isCompleted: boolean) => void;
 };
 
 const PLACEHOLDER = "Add a new to-do...";
 
-const Entry = ({ toDo, onAdd, onEdit, onRemove }: EntryProps) => {
+const Entry = ({ toDo, onAdd, onEdit, onRemove, onComplete }: EntryProps) => {
   return (
     <View style={styles.container}>
+      <Checkbox
+        value={toDo.isCompleted}
+        onValueChange={(isCompleted) => onComplete(toDo.key, isCompleted)}
+      />
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          toDo.isCompleted && { textDecorationLine: "line-through" },
+        ]}
         value={toDo.text}
         onChangeText={onEdit}
         onSubmitEditing={onAdd}
@@ -39,7 +48,8 @@ const styles = StyleSheet.create({
     flex: 1,
     borderBottomWidth: 1,
     borderColor: "#ddd",
-    padding: 10,
+    padding: 8,
+    marginHorizontal: 16,
     fontSize: 18,
     marginBottom: 10,
   },
