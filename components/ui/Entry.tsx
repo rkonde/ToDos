@@ -1,5 +1,6 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import Checkbox from "expo-checkbox";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 
 import { ToDo } from "@/components/ToDoList";
 
@@ -15,9 +16,16 @@ const PLACEHOLDER = "Add a new to-do...";
 
 const Entry = ({ toDo, onAdd, onEdit, onRemove, onComplete }: EntryProps) => {
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        toDo.isCompleted && { backgroundColor: "#57D657" },
+      ]}
+    >
       <Checkbox
+        style={styles.checkBox}
         value={toDo.isCompleted}
+        color={"green"}
         onValueChange={(isCompleted) => onComplete(toDo.key, isCompleted)}
       />
       <TextInput
@@ -32,9 +40,12 @@ const Entry = ({ toDo, onAdd, onEdit, onRemove, onComplete }: EntryProps) => {
         placeholder={PLACEHOLDER}
         blurOnSubmit={false}
       />
-      <Pressable style={styles.button} onPress={() => onRemove(toDo.key)}>
-        <Text style={styles.buttonText}>X</Text>
-      </Pressable>
+      <Ionicons
+        name="remove-circle-outline"
+        size={28}
+        color={"red"}
+        onPress={() => onRemove(toDo.key)}
+      />
     </View>
   );
 };
@@ -43,21 +54,30 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 1,
+    padding: 4,
+    paddingHorizontal: 16,
+    marginVertical: 4,
+    borderRadius: 16,
+  },
+
+  checkBox: {
+    height: 28,
+    width: 28,
   },
 
   input: {
     flex: 1,
-    borderBottomWidth: 1,
     borderColor: "#ddd",
     padding: 8,
     marginHorizontal: 16,
     fontSize: 18,
-    marginBottom: 10,
     textAlign: "left",
   },
 
   button: {
-    backgroundColor: "red",
+    borderWidth: 1,
+    borderColor: "red",
     height: 28,
     width: 28,
     justifyContent: "center",
@@ -66,8 +86,8 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "white",
-    fontWeight: "bold",
+    color: "red",
+    fontSize: 16,
   },
 });
 

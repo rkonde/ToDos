@@ -64,7 +64,7 @@ const TodoList = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView>
         {toDos.map((toDo) => (
           <Entry
             key={toDo.key}
@@ -99,11 +99,9 @@ const TodoList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
     backgroundColor: "#fff",
   },
-
-  scrollContainer: {},
 
   bottomBar: {
     flexDirection: "row",

@@ -24,6 +24,7 @@ const Input = ({ value, onAdd, onEdit }: InputProps) => {
 
 const styles = StyleSheet.create({
   input: {
+    marginTop: 4,
     borderBottomWidth: 1,
     borderColor: "#ddd",
     padding: 10,
