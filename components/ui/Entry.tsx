@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     fontSize: 18,
     marginBottom: 10,
+    textAlign: "left",
   },
 
   button: {

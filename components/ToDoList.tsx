@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import Entry from "@/components/ui/Entry";
 import Input from "@/components/ui/Input";
@@ -44,14 +44,22 @@ const TodoList = () => {
     );
   };
 
-  const handleRemoveToDo = (key: string) => {
-    setToDos((toDos) => toDos.filter((toDo) => toDo.key !== key));
-  };
-
   const handleCompleteToDo = (key: string, isCompleted: boolean) => {
     setToDos((toDos) =>
       toDos.map((toDo) => (toDo.key !== key ? toDo : { ...toDo, isCompleted }))
     );
+  };
+
+  const handleRemoveToDo = (key: string) => {
+    setToDos((toDos) => toDos.filter((toDo) => toDo.key !== key));
+  };
+
+  const handleCompleteAll = () => {
+    setToDos((toDos) => toDos.map((toDo) => ({ ...toDo, isCompleted: true })));
+  };
+
+  const handleRemoveAll = () => {
+    setToDos([]);
   };
 
   return (
@@ -73,6 +81,17 @@ const TodoList = () => {
           onAdd={handleAddTodo}
         />
       </ScrollView>
+      <View style={styles.bottomBar}>
+        <Pressable style={styles.button} onPress={handleCompleteAll}>
+          <Text style={styles.buttonText}>Complete All</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.button, styles.redButton]}
+          onPress={handleRemoveAll}
+        >
+          <Text style={styles.buttonText}>Remove All</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -84,8 +103,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 
-  scrollContainer: {
-    flexGrow: 1,
+  scrollContainer: {},
+
+  bottomBar: {
+    flexDirection: "row",
+  },
+
+  button: {
+    flex: 1,
+    padding: 8,
+    marginHorizontal: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "green",
+    borderRadius: 8,
+  },
+
+  redButton: {
+    backgroundColor: "red",
+  },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 
