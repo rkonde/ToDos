@@ -1,6 +1,7 @@
 import Checkbox from "expo-checkbox";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { ToDo } from "../toDoList/ToDoList";
+
+import { ToDo } from "@/components/ToDoList";
 
 type EntryProps = {
   toDo: ToDo;

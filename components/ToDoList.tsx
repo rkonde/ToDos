@@ -1,10 +1,9 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import Entry from "../ui/Entry";
-import Input from "../ui/Input";
 
-const STORAGE_KEY = "@toDos";
+import Entry from "@/components/ui/Entry";
+import Input from "@/components/ui/Input";
+import { getToDos, saveTodos } from "@/services/Storage";
 
 export type ToDo = {
   key: string;
@@ -25,25 +24,7 @@ const TodoList = () => {
   }, [toDos]);
 
   const loadToDos = async () => {
-    try {
-      const jsonToDos = await AsyncStorage.getItem(STORAGE_KEY);
-
-      if (jsonToDos != null) {
-        setToDos(JSON.parse(jsonToDos));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const saveTodos = async (toDos: ToDo[]) => {
-    try {
-      const jsonToDos = JSON.stringify(toDos);
-
-      await AsyncStorage.setItem(STORAGE_KEY, jsonToDos);
-    } catch (e) {
-      console.error(e);
-    }
+    setToDos(await getToDos());
   };
 
   const handleAddTodo = () => {
