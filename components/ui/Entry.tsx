@@ -24,7 +24,7 @@ const Entry = ({ toDo, onAdd, onEdit, onRemove, onComplete }: EntryProps) => {
           styles.input,
           toDo.isCompleted && { textDecorationLine: "line-through" },
         ]}
-        value={toDo.text}
+        value={toDo.value}
         onChangeText={onEdit}
         onSubmitEditing={onAdd}
         onBlur={onAdd}

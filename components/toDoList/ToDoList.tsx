@@ -4,41 +4,41 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import Entry from "../ui/Entry";
 import Input from "../ui/Input";
 
-const STORAGE_KEY = "@todos";
+const STORAGE_KEY = "@toDos";
 
 export type ToDo = {
   key: string;
-  text: string;
+  value: string;
   isCompleted: boolean;
 };
 
 const TodoList = () => {
-  const [todos, setTodos] = useState<ToDo[]>([]);
+  const [toDos, setToDos] = useState<ToDo[]>([]);
   const [currentValue, setCurrentValue] = useState("");
 
   useEffect(() => {
-    loadTodos();
+    loadToDos();
   }, []);
 
   useEffect(() => {
-    saveTodos(todos);
-  }, [todos]);
+    saveTodos(toDos);
+  }, [toDos]);
 
-  const loadTodos = async () => {
+  const loadToDos = async () => {
     try {
       const jsonToDos = await AsyncStorage.getItem(STORAGE_KEY);
 
       if (jsonToDos != null) {
-        setTodos(JSON.parse(jsonToDos));
+        setToDos(JSON.parse(jsonToDos));
       }
     } catch (e) {
       console.error(e);
     }
   };
 
-  const saveTodos = async (todos: ToDo[]) => {
+  const saveTodos = async (toDos: ToDo[]) => {
     try {
-      const jsonToDos = JSON.stringify(todos);
+      const jsonToDos = JSON.stringify(toDos);
 
       await AsyncStorage.setItem(STORAGE_KEY, jsonToDos);
     } catch (e) {
@@ -48,9 +48,9 @@ const TodoList = () => {
 
   const handleAddTodo = () => {
     if (currentValue.trim() !== "") {
-      setTodos([
-        ...todos,
-        { key: Date.now().toString(), text: currentValue, isCompleted: false },
+      setToDos((toDos) => [
+        ...toDos,
+        { key: Date.now().toString(), value: currentValue, isCompleted: false },
       ]);
 
       setCurrentValue("");
@@ -58,36 +58,34 @@ const TodoList = () => {
   };
 
   const handleTextChange = (text: string, key: string) => {
-    setTodos((toDos) =>
-      toDos.map((todo) => (todo.key === key ? { ...todo, text } : todo))
+    setToDos((toDos) =>
+      toDos.map((toDo) => (toDo.key === key ? { ...toDo, value: text } : toDo))
     );
   };
 
   const handleRemoveToDo = (key: string) => {
-    setTodos((todos) => todos.filter((todo) => todo.key !== key));
+    setToDos((toDos) => toDos.filter((toDo) => toDo.key !== key));
   };
 
   const handleCompleteToDo = (key: string, isCompleted: boolean) => {
-    setTodos((todos) =>
-      todos.map((todo) => (todo.key !== key ? todo : { ...todo, isCompleted }))
+    setToDos((toDos) =>
+      toDos.map((toDo) => (toDo.key !== key ? toDo : { ...toDo, isCompleted }))
     );
   };
-
-  const renderTodo = (item: ToDo) => (
-    <Entry
-      key={item.key}
-      toDo={item}
-      onEdit={(text) => handleTextChange(text, item.key)}
-      onAdd={handleAddTodo}
-      onRemove={handleRemoveToDo}
-      onComplete={handleCompleteToDo}
-    />
-  );
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {todos.map(renderTodo)}
+        {toDos.map((toDo) => (
+          <Entry
+            key={toDo.key}
+            toDo={toDo}
+            onEdit={(text) => handleTextChange(text, toDo.key)}
+            onAdd={handleAddTodo}
+            onRemove={handleRemoveToDo}
+            onComplete={handleCompleteToDo}
+          />
+        ))}
         <Input
           value={currentValue}
           onEdit={setCurrentValue}
