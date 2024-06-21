@@ -1,22 +1,21 @@
-import { StyleSheet, TextInput } from "react-native";
+import { Colors } from "@/constants/Colors";
+import { StyleProp, StyleSheet, TextInput, TextStyle } from "react-native";
 
 type InputProps = {
   value: string;
+  placeholder?: string;
   onEdit: (value: string) => void;
-  onAdd: () => void;
+  style?: StyleProp<TextStyle>;
 };
 
-const PLACEHOLDER = "Add a new to-do...";
-
-const Input = ({ value, onAdd, onEdit }: InputProps) => {
+const Input = ({ value, placeholder, onEdit, style }: InputProps) => {
   return (
     <TextInput
-      style={styles.input}
+      style={[styles.input, style]}
       value={value}
       onChangeText={onEdit}
-      onSubmitEditing={onAdd}
-      onBlur={onAdd}
-      placeholder={PLACEHOLDER}
+      placeholder={placeholder}
+      placeholderTextColor={Colors.dark.secondary}
       blurOnSubmit={false}
     />
   );
@@ -24,12 +23,9 @@ const Input = ({ value, onAdd, onEdit }: InputProps) => {
 
 const styles = StyleSheet.create({
   input: {
-    marginTop: 4,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-    padding: 10,
+    padding: 4,
     fontSize: 18,
-    marginBottom: 10,
+    color: Colors.dark.primary,
   },
 });
 

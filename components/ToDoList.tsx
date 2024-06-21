@@ -1,46 +1,74 @@
-import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  LayoutAnimation,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  UIManager,
+  View,
+} from "react-native";
 
+import AddToDoButton from "@/components/ui/AddToDoButton";
 import Entry from "@/components/ui/Entry";
 import Input from "@/components/ui/Input";
-import { getToDos, saveTodos } from "@/services/Storage";
+import { Colors } from "@/constants/Colors";
+import { getTitle, getToDos, saveTitle, saveTodos } from "@/services/Storage";
+import { ToDo } from "@/types/ToDo";
 
-export type ToDo = {
-  key: string;
-  value: string;
-  isCompleted: boolean;
+const TITLE_PLACEHOLDER = "Title";
+
+const EMPTY_TO_DO: ToDo = {
+  key: Date.now().toString(),
+  value: "",
+  isCompleted: false,
 };
 
 const TodoList = () => {
-  const [toDos, setToDos] = useState<ToDo[]>([]);
-  const [currentValue, setCurrentValue] = useState("");
+  const [title, setTitle] = useState("");
+  const [toDos, setToDos] = useState<ToDo[]>([EMPTY_TO_DO]);
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    loadToDos();
+    if (Platform.OS === "android") {
+      UIManager.setLayoutAnimationEnabledExperimental &&
+        UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+
+    loadData();
   }, []);
 
   useEffect(() => {
-    saveTodos(toDos);
+    if (toDos && toDos.length > 0) {
+      saveTodos(toDos);
+    }
   }, [toDos]);
 
-  const loadToDos = async () => {
+  useEffect(() => {
+    if (title !== "") {
+      saveTitle(title);
+    }
+  }, [title]);
+
+  const loadData = async () => {
     setToDos(await getToDos());
+    setTitle(await getTitle());
   };
 
   const handleAddTodo = () => {
-    if (currentValue.trim() !== "") {
-      setToDos((toDos) => [
-        ...toDos,
-        { key: Date.now().toString(), value: currentValue, isCompleted: false },
-      ]);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-      setCurrentValue("");
-    }
+    setToDos((toDos) => [
+      ...toDos,
+      { key: Date.now().toString(), value: "", isCompleted: false },
+    ]);
+
+    scrollViewRef.current?.scrollToEnd({ animated: true });
   };
 
-  const handleTextChange = (text: string, key: string) => {
+  const handleValueChange = (value: string, key: string) => {
     setToDos((toDos) =>
-      toDos.map((toDo) => (toDo.key === key ? { ...toDo, value: text } : toDo))
+      toDos.map((toDo) => (toDo.key === key ? { ...toDo, value: value } : toDo))
     );
   };
 
@@ -51,47 +79,42 @@ const TodoList = () => {
   };
 
   const handleRemoveToDo = (key: string) => {
-    setToDos((toDos) => toDos.filter((toDo) => toDo.key !== key));
-  };
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-  const handleCompleteAll = () => {
-    setToDos((toDos) => toDos.map((toDo) => ({ ...toDo, isCompleted: true })));
-  };
+    setToDos((toDos) => {
+      const filteredToDos = toDos.filter((toDo) => toDo.key !== key);
 
-  const handleRemoveAll = () => {
-    setToDos([]);
+      if (filteredToDos.length === 0) {
+        filteredToDos.push(EMPTY_TO_DO);
+      }
+
+      return filteredToDos;
+    });
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        {toDos.map((toDo) => (
-          <Entry
-            key={toDo.key}
-            toDo={toDo}
-            onEdit={(text) => handleTextChange(text, toDo.key)}
-            onAdd={handleAddTodo}
-            onRemove={handleRemoveToDo}
-            onComplete={handleCompleteToDo}
+      <ScrollView keyboardShouldPersistTaps="always" ref={scrollViewRef}>
+        <View style={styles.titleContainer}>
+          <Input
+            value={title}
+            placeholder={TITLE_PLACEHOLDER}
+            onEdit={setTitle}
+            style={styles.title}
           />
-        ))}
-        <Input
-          value={currentValue}
-          onEdit={setCurrentValue}
-          onAdd={handleAddTodo}
-        />
+        </View>
+        {toDos &&
+          toDos.map((toDo) => (
+            <Entry
+              key={toDo.key}
+              toDo={toDo}
+              onEdit={(value) => handleValueChange(value, toDo.key)}
+              onRemove={handleRemoveToDo}
+              onComplete={handleCompleteToDo}
+            />
+          ))}
+        <AddToDoButton onAdd={handleAddTodo} />
       </ScrollView>
-      <View style={styles.bottomBar}>
-        <Pressable style={styles.button} onPress={handleCompleteAll}>
-          <Text style={styles.buttonText}>Complete All</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.button, styles.redButton]}
-          onPress={handleRemoveAll}
-        >
-          <Text style={styles.buttonText}>Remove All</Text>
-        </Pressable>
-      </View>
     </View>
   );
 };
@@ -100,30 +123,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.dark.background,
   },
 
-  bottomBar: {
-    flexDirection: "row",
+  titleContainer: {
+    marginVertical: 12,
   },
 
-  button: {
-    flex: 1,
-    padding: 8,
-    marginHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "green",
-    borderRadius: 8,
-  },
-
-  redButton: {
-    backgroundColor: "red",
-  },
-
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
+  title: {
+    fontSize: 24,
   },
 });
 
