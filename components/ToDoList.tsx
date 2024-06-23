@@ -4,6 +4,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  TextInput,
   UIManager,
   View,
 } from "react-native";
@@ -26,6 +27,8 @@ const EMPTY_TO_DO: ToDo = {
 const TodoList = () => {
   const [title, setTitle] = useState("");
   const [toDos, setToDos] = useState<ToDo[]>([EMPTY_TO_DO]);
+  const inputRefs = useRef<TextInput[]>([]);
+  const [focusedInputIndex, setFocusedInputIndex] = useState<number>(0);
 
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -42,6 +45,14 @@ const TodoList = () => {
     if (toDos && toDos.length > 0) {
       saveTodos(toDos);
     }
+
+    if (focusedInputIndex !== null && inputRefs.current[focusedInputIndex]) {
+      inputRefs.current[focusedInputIndex].focus();
+    }
+
+    if (focusedInputIndex === toDos.length - 1) {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }
   }, [toDos]);
 
   useEffect(() => {
@@ -55,15 +66,22 @@ const TodoList = () => {
     setTitle(await getTitle());
   };
 
-  const handleAddTodo = () => {
+  const handleAddTodo = (index: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-    setToDos((toDos) => [
-      ...toDos,
-      { key: Date.now().toString(), value: "", isCompleted: false },
-    ]);
+    setToDos((toDos) => {
+      const updatedToDos = [...toDos];
 
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+      updatedToDos.splice(index + 1, 0, {
+        key: Date.now().toString(),
+        value: "",
+        isCompleted: false,
+      });
+
+      return updatedToDos;
+    });
+
+    setFocusedInputIndex(index + 1);
   };
 
   const handleValueChange = (value: string, key: string) => {
@@ -90,6 +108,8 @@ const TodoList = () => {
 
       return filteredToDos;
     });
+
+    setFocusedInputIndex((focusedInputIndex) => focusedInputIndex - 1);
   };
 
   return (
@@ -104,16 +124,19 @@ const TodoList = () => {
           />
         </View>
         {toDos &&
-          toDos.map((toDo) => (
+          toDos.map((toDo, index) => (
             <Entry
               key={toDo.key}
               toDo={toDo}
+              ref={(ref) => (inputRefs.current[index] = ref as TextInput)}
               onEdit={(value) => handleValueChange(value, toDo.key)}
+              onSubmit={() => handleAddTodo(index)}
               onRemove={handleRemoveToDo}
               onComplete={handleCompleteToDo}
+              onFocus={() => setFocusedInputIndex(index)}
             />
           ))}
-        <AddToDoButton onAdd={handleAddTodo} />
+        <AddToDoButton onAdd={() => handleAddTodo(toDos.length - 1)} />
       </ScrollView>
     </View>
   );

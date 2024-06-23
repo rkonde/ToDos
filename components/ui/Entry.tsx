@@ -2,53 +2,76 @@ import { Colors } from "@/constants/Colors";
 import { ToDo } from "@/types/ToDo";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
-import { useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { forwardRef, useState } from "react";
+import {
+  NativeSyntheticEvent,
+  StyleSheet,
+  TextInput,
+  TextInputKeyPressEventData,
+  View,
+} from "react-native";
 
 type EntryProps = {
   toDo: ToDo;
-
   onEdit: (value: string) => void;
+  onSubmit: () => void;
   onRemove: (key: string) => void;
   onComplete: (key: string, isCompleted: boolean) => void;
+  onFocus: () => void;
 };
 
-const Entry = ({ toDo, onEdit, onRemove, onComplete }: EntryProps) => {
-  const [isFocused, setIsFocused] = useState(false);
+const Entry = forwardRef<TextInput, EntryProps>(
+  ({ toDo, onEdit, onSubmit, onRemove, onComplete, onFocus }, ref) => {
+    const [isFocused, setIsFocused] = useState(false);
 
-  return (
-    <View style={styles.container}>
-      <Checkbox
-        style={styles.checkBox}
-        value={toDo.isCompleted}
-        color={toDo.isCompleted ? Colors.dark.secondary : Colors.dark.text}
-        onValueChange={(isCompleted) => onComplete(toDo.key, isCompleted)}
-      />
-      <TextInput
-        style={[
-          styles.input,
-          toDo.isCompleted && {
-            textDecorationLine: "line-through",
-            color: Colors.dark.secondary,
-          },
-        ]}
-        value={toDo.value}
-        onChangeText={onEdit}
-        blurOnSubmit={false}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-      />
-      {isFocused && (
-        <Feather
-          name="x"
-          size={24}
-          color={Colors.dark.text}
-          onPress={() => onRemove(toDo.key)}
+    const handleDeletOnEmpty = (
+      e: NativeSyntheticEvent<TextInputKeyPressEventData>
+    ) => {
+      if (e.nativeEvent.key === "Backspace" && toDo.value === "") {
+        onRemove(toDo.key);
+      }
+    };
+
+    return (
+      <View style={styles.container}>
+        <Checkbox
+          style={styles.checkBox}
+          value={toDo.isCompleted}
+          color={toDo.isCompleted ? Colors.dark.secondary : Colors.dark.text}
+          onValueChange={(isCompleted) => onComplete(toDo.key, isCompleted)}
         />
-      )}
-    </View>
-  );
-};
+        <TextInput
+          style={[
+            styles.input,
+            toDo.isCompleted && {
+              textDecorationLine: "line-through",
+              color: Colors.dark.secondary,
+            },
+          ]}
+          value={toDo.value}
+          onChangeText={onEdit}
+          onKeyPress={handleDeletOnEmpty}
+          blurOnSubmit={false}
+          onFocus={() => {
+            setIsFocused(true);
+            onFocus();
+          }}
+          onBlur={() => setIsFocused(false)}
+          onSubmitEditing={onSubmit}
+          ref={ref}
+        />
+        {isFocused && (
+          <Feather
+            name="x"
+            size={24}
+            color={Colors.dark.text}
+            onPress={() => onRemove(toDo.key)}
+          />
+        )}
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {
