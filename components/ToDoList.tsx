@@ -45,7 +45,9 @@ const TodoList = () => {
     if (toDos && toDos.length > 0) {
       saveTodos(toDos);
     }
+  }, [toDos]);
 
+  useEffect(() => {
     if (focusedInputIndex !== null && inputRefs.current[focusedInputIndex]) {
       inputRefs.current[focusedInputIndex].focus();
     }
@@ -53,7 +55,7 @@ const TodoList = () => {
     if (focusedInputIndex === toDos.length - 1) {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }
-  }, [toDos]);
+  }, [focusedInputIndex]);
 
   useEffect(() => {
     if (title !== "") {
@@ -97,19 +99,22 @@ const TodoList = () => {
   };
 
   const handleRemoveToDo = (key: string) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-    setToDos((toDos) => {
-      const filteredToDos = toDos.filter((toDo) => toDo.key !== key);
-
-      if (filteredToDos.length === 0) {
-        filteredToDos.push(EMPTY_TO_DO);
-      }
-
-      return filteredToDos;
-    });
-
     setFocusedInputIndex((focusedInputIndex) => focusedInputIndex - 1);
+
+    //Added debounce for removing entry for keyboard to not lose focus
+    setTimeout(() => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+      setToDos((toDos) => {
+        const filteredToDos = toDos.filter((toDo) => toDo.key !== key);
+
+        if (filteredToDos.length === 0) {
+          filteredToDos.push(EMPTY_TO_DO);
+        }
+
+        return filteredToDos;
+      });
+    }, 50);
   };
 
   return (
