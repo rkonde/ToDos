@@ -4,7 +4,10 @@ This is a simple ToDos application built with React Native and Expo. The applica
 
 ## Screenshots
 
-<img src="./screenshots/screenshot.png" width="360" height="780">
+<p align="middle">
+   <img src="./screenshots/screenshot_1.png" width="360" height="780">
+   <img src="./screenshots/screenshot_2.png" width="360" height="780">
+</p>
 
 ## Features
 
