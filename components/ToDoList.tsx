@@ -12,6 +12,7 @@ import {
 import AddToDoButton from "@/components/ui/AddToDoButton";
 import Entry from "@/components/ui/Entry";
 import Input from "@/components/ui/Input";
+
 import { Colors } from "@/constants/Colors";
 import { getTitle, getToDos, saveTitle, saveTodos } from "@/services/Storage";
 import { ToDo } from "@/types/ToDo";
@@ -27,9 +28,9 @@ const EMPTY_TO_DO: ToDo = {
 const TodoList = () => {
   const [title, setTitle] = useState("");
   const [toDos, setToDos] = useState<ToDo[]>([EMPTY_TO_DO]);
-  const inputRefs = useRef<TextInput[]>([]);
   const [focusedInputIndex, setFocusedInputIndex] = useState<number>(0);
 
+  const inputRefs = useRef<TextInput[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
