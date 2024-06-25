@@ -1,14 +1,13 @@
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView, StyleSheet } from "react-native";
+
 import ToDoList from "@/components/ToDoList";
 import { Colors } from "@/constants/Colors";
-import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar
-        backgroundColor={Colors.dark.background}
-        barStyle={"dark-content"}
-      />
+      <StatusBar backgroundColor={Colors.dark.background} />
       <ToDoList />
     </SafeAreaView>
   );
